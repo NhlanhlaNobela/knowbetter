@@ -1,12 +1,12 @@
+from pathlib import Path
 
-<!doctype html>
+html = r'''<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101827">
 <title>SQL Number Toolkit</title>
-
 <style>
 :root{--bg:#f3f6fb;--panel:#fff;--ink:#182235;--muted:#68758b;--line:#e3e9f2;--navy:#101827;--blue:#315efb;--blue2:#eaf0ff;--green:#087f5b;--shadow:0 16px 45px rgba(20,35,65,.08)}
 *{box-sizing:border-box}
@@ -24,15 +24,16 @@ main{max-width:1120px;margin:-48px auto 50px;padding:0 22px}
 .intro p{margin:0;color:#aebbd0}
 .workspace{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;box-shadow:var(--shadow);min-width:0}
-.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;gap:10px}
 .panel h2{font-size:15px;margin:0;letter-spacing:.2px}
-.step{font-size:11px;color:var(--blue);font-weight:800;background:var(--blue2);padding:4px 8px;border-radius:7px}
+.step{font-size:11px;color:var(--blue);font-weight:800;background:var(--blue2);padding:4px 8px;border-radius:7px;white-space:nowrap}
 .hint{font-size:13px;color:var(--muted);margin:0 0 13px}
 textarea{width:100%;min-height:290px;resize:vertical;border:1px solid #d9e1ed;border-radius:12px;padding:14px;font:14px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace;color:#26344a;outline:none;background:#fbfcfe}
 textarea:focus,select:focus{border-color:#7894ff;box-shadow:0 0 0 3px #e9eeff}
 .actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
 .btn{border:0;border-radius:10px;padding:10px 14px;font-weight:700;font-size:13px;cursor:pointer;transition:.15s}
 .btn:hover{transform:translateY(-1px);filter:brightness(.98)}
+.btn:focus-visible{outline:3px solid #a9baff;outline-offset:2px}
 .primary{background:var(--blue);color:#fff}
 .secondary{background:#eef2f8;color:#344258}
 .ghost{background:#fff;border:1px solid var(--line);color:#344258}
@@ -43,306 +44,384 @@ textarea:focus,select:focus{border-color:#7894ff;box-shadow:0 0 0 3px #e9eeff}
 .checks label{display:flex;align-items:center;gap:7px;font-size:13px;color:#4d5b70;cursor:pointer}
 .checks input{accent-color:var(--blue);width:15px;height:15px}
 .output-wrap{position:relative}
-.output{min-height:290px;background:#101827;color:#dbe7ff;border:1px solid #26354e;border-radius:12px;padding:16px;white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace}
+.output{min-height:290px;max-height:520px;overflow:auto;background:#101827;color:#dbe7ff;border:1px solid #26354e;border-radius:12px;padding:16px;white-space:pre-wrap;overflow-wrap:anywhere;font:14px/1.7 ui-monospace,SFMono-Regular,Consolas,monospace}
 .output.empty{color:#8796ad}
-.stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.stat{background:#f1f5fb;border-radius:9px;padding:7px 10px;color:#5a6880;font-size:12px}
-.stat b{color:#1d2b42}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.stat{background:#f1f5fb;border-radius:9px;padding:9px 11px;color:#5a6880;font-size:12px;min-width:0}
+.stat b{display:block;color:#1d2b42;font-size:18px;line-height:1.35;overflow-wrap:anywhere}
+.stat.wide{grid-column:1/-1}
 .note{margin:18px 2px 0;color:#718096;font-size:12px;text-align:center}
-.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#14233a;color:#fff;padding:10px 16px;border-radius:10px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#14233a;color:#fff;padding:10px 16px;border-radius:10px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .2s;z-index:10;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1}
-
-@media(max-width:760px){
-.workspace{grid-template-columns:1fr}
-.panel{padding:17px}
-textarea,.output{min-height:210px}
-.pill{display:none}
-header{padding-bottom:68px}
-}
+@media(max-width:760px){.workspace{grid-template-columns:1fr}.panel{padding:17px}textarea,.output{min-height:210px}.pill{display:none}header{padding-bottom:68px}}
+@media(max-width:420px){main{padding:0 12px}.controls{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}.btn{padding:9px 11px}}
 </style>
 </head>
-
 <body>
-
 <header>
-<div class="head">
-  <div class="brand">
-    <div class="logo">SQL</div>
-    <div>
-      <strong>SQL Number Toolkit</strong>
-      <small>Quick formatting for everyday SQL work</small>
+  <div class="head">
+    <div class="brand">
+      <div class="logo">SQL</div>
+      <div><strong>SQL Number Toolkit</strong><small>Quick formatting for everyday SQL work</small></div>
     </div>
+    <div class="pill">Offline · No sign-in · No uploads</div>
   </div>
-  <div class="pill">Offline · No sign-in · No uploads</div>
-</div>
-
-<div class="head intro">
-  <div>
-    <h1>Format your numbers. Get back to work.</h1>
-    <p>Convert pasted store or terminal numbers into clean SQL-ready lists.</p>
+  <div class="head intro">
+    <div><h1>Format your numbers. Get back to work.</h1><p>Convert pasted store or terminal numbers into clean SQL-ready lists.</p></div>
   </div>
-</div>
 </header>
 
 <main>
+  <div class="workspace">
+    <section class="panel">
+      <div class="panel-head"><h2>INPUT NUMBERS</h2><span class="step">01 · PASTE</span></div>
+      <p class="hint">Paste numbers separated by lines, commas, semicolons or spaces. Text labels are allowed; only digit sequences are extracted.</p>
+      <textarea id="input" spellcheck="false" placeholder="Paste your store numbers here..."></textarea>
+      <div class="actions">
+        <button class="btn secondary" id="sample" type="button">Load sample</button>
+        <button class="btn primary" id="cleanInput" type="button">Clean Input</button>
+        <button class="btn ghost" id="clear" type="button">Clear input</button>
+        <label class="btn ghost" for="file" style="cursor:pointer">Import TXT / CSV</label>
+        <input id="file" type="file" accept=".txt,.csv,text/plain,text/csv" hidden>
+      </div>
+    </section>
 
-<div class="workspace">
+    <section class="panel">
+      <div class="panel-head"><h2>FORMATTED OUTPUT</h2><span class="step">02 · COPY</span></div>
+      <p class="hint">Your result updates automatically as you type or paste.</p>
 
-<section class="panel">
-  <div class="panel-head">
-    <h2>INPUT NUMBERS</h2>
-    <span class="step">01 · PASTE</span>
+      <div class="controls">
+        <div class="field">
+          <label for="format">Output format</label>
+          <select id="format">
+            <option value="quoted">Quoted list — '0001','0004'</option>
+            <option value="in">SQL IN clause</option>
+            <option value="plain">Plain list — 0001,0004</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="separator">Separator</label>
+          <select id="separator">
+            <option value=",">Comma (no spaces)</option>
+            <option value=", ">Comma + space</option>
+            <option value="newline">New line</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="checks">
+        <label><input type="checkbox" id="dedupe"> Remove duplicates</label>
+        <label><input type="checkbox" id="sort"> Sort ascending</label>
+        <label><input type="checkbox" id="sortDesc"> Sort descending</label>
+      </div>
+
+      <div class="output-wrap">
+        <div id="output" class="output empty" aria-live="polite">Your formatted result will appear here.</div>
+      </div>
+
+      <div class="stats" aria-label="Live processing summary">
+        <div class="stat"><b id="count">0</b>Total numbers</div>
+        <div class="stat"><b id="uniqueCount">0</b>Unique numbers</div>
+        <div class="stat"><b id="duplicates">0</b>Duplicate occurrences</div>
+        <div class="stat"><b id="invalid">0</b>Invalid entries</div>
+        <div class="stat wide"><b id="characters">0</b>Characters processed</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="copy" type="button">Copy output</button>
+        <button class="btn secondary" id="downloadTXT" type="button">Export TXT</button>
+        <button class="btn secondary" id="downloadCSV" type="button">Export CSV</button>
+        <button class="btn secondary" id="downloadSQL" type="button">Export SQL</button>
+      </div>
+    </section>
   </div>
-
-  <p class="hint">Paste one number per line, or separate values with commas, spaces or semicolons.</p>
-
-  <!-- Input starts empty -->
-  <textarea id="input" spellcheck="false" placeholder="Paste your numbers here..."></textarea>
-
-  <div class="actions">
-    <button class="btn secondary" id="sample" type="button">Load sample</button>
-    <button class="btn ghost" id="clear" type="button">Clear input</button>
-    <label class="btn ghost" for="file" style="cursor:pointer">Open .txt</label>
-    <input id="file" type="file" accept=".txt,text/plain" hidden>
-  </div>
-</section>
-
-<section class="panel">
-  <div class="panel-head">
-    <h2>FORMATTED OUTPUT</h2>
-    <span class="step">02 · COPY</span>
-  </div>
-
-  <p class="hint">Your result updates automatically as you type.</p>
-
-  <div class="controls">
-    <div class="field">
-      <label for="format">Output format</label>
-      <select id="format">
-        <option value="quoted">Quoted list — '0001','0004'</option>
-        <option value="in">SQL IN clause</option>
-        <option value="plain">Plain list — 0001,0004</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label for="separator">Separator</label>
-      <select id="separator">
-        <option value=",">Comma (no spaces)</option>
-        <option value=", ">Comma + space</option>
-        <option value="newline">New line</option>
-      </select>
-    </div>
-  </div>
-
-  <div class="checks">
-    <label><input type="checkbox" id="dedupe"> Remove duplicates</label>
-    <label><input type="checkbox" id="sort"> Sort ascending</label>
-  </div>
-
-  <div class="output-wrap">
-    <div id="output" class="output empty" aria-live="polite">Your formatted result will appear here.</div>
-  </div>
-
-  <div class="stats">
-    <div class="stat"><b id="count">0</b> values</div>
-    <div class="stat"><b id="duplicates">0</b> duplicates removed</div>
-  </div>
-
-  <div class="actions">
-    <button class="btn primary" id="copy" type="button">Copy output</button>
-    <button class="btn secondary" id="download" type="button">Download .sql</button>
-  </div>
-</section>
-
-</div>
-
-<p class="note">Your data stays in your browser. This page does not send pasted values to a server.</p>
-
+  <p class="note">Your data stays in your browser. This page does not send pasted values to a server.</p>
 </main>
 
-<div id="toast" class="toast" role="status"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
 
 <script>
+'use strict';
+
 const $ = id => document.getElementById(id);
 const input = $('input');
 
-/* Extract values correctly */
-function getValues() {
-    return input.value
-        .split(/[\s,;]+/)
-        .map(v => v.trim().replace(/^['"]|['"]$/g, ''))
+let processedValues = [];
+let formattedResult = '';
+let toastTimer;
+
+/*
+ * Split input into records using line breaks, commas and semicolons.
+ * Extract digit sequences from each record. Values remain strings so
+ * leading zeros and long identifiers are preserved.
+ *
+ * Space-separated numbers are also supported because every digit
+ * sequence in a record is extracted independently.
+ */
+function analyzeInput(raw) {
+    const records = raw
+        .split(/[\r\n,;]+/)
+        .map(record => record.trim())
         .filter(Boolean);
+
+    const values = [];
+    let invalidCount = 0;
+
+    for (const record of records) {
+        const matches = record.match(/\d+/g);
+
+        if (matches) {
+            values.push(...matches);
+        } else {
+            invalidCount++;
+        }
+    }
+
+    return {
+        values,
+        invalidCount,
+        characters: raw.length
+    };
 }
 
-/* Format output */
+function getValues() {
+    return analyzeInput(input.value).values;
+}
+
+function compareNumericStrings(a, b) {
+    // Compare digit strings without converting them to Number.
+    const left = a.replace(/^0+(?=\d)/, '');
+    const right = b.replace(/^0+(?=\d)/, '');
+
+    if (left.length !== right.length) {
+        return left.length - right.length;
+    }
+
+    if (left !== right) {
+        return left < right ? -1 : 1;
+    }
+
+    // Stable tie-breaker for values such as 09 and 9.
+    if (a.length !== b.length) {
+        return a.length - b.length;
+    }
+
+    return a.localeCompare(b);
+}
+
 function update() {
+    const analysis = analyzeInput(input.value);
+    const originalValues = analysis.values;
+    let values = originalValues.slice();
 
-    let values = getValues();
-    const originalCount = values.length;
+    const uniqueCount = new Set(originalValues).size;
+    const duplicateCount = originalValues.length - uniqueCount;
 
-    /* Remove duplicates when selected */
     if ($('dedupe').checked) {
         values = [...new Set(values)];
     }
 
-    const uniqueCount = values.length;
-
-    /* Sort numerically while preserving leading zeros */
     if ($('sort').checked) {
-        values.sort((a, b) =>
-            a.localeCompare(b, undefined, { numeric: true })
-        );
+        values.sort(compareNumericStrings);
+    } else if ($('sortDesc').checked) {
+        values.sort((a, b) => compareNumericStrings(b, a));
     }
 
-    const fmt = $('format').value;
+    processedValues = values;
 
-    /* Format values */
-    const formatted = values.map(v => {
-        if (fmt === 'plain') {
-            return v;
-        }
-
-        return "'" + v.replace(/'/g, "''") + "'";
-    });
-
-    /* Correct separator handling */
-    const sep = $('separator').value === 'newline'
+    const format = $('format').value;
+    const separator = $('separator').value === 'newline'
         ? '\n'
         : $('separator').value;
 
-    let result = formatted.join(sep);
+    const formatted = values.map(value => {
+        if (format === 'plain') return value;
+        return "'" + value.replace(/'/g, "''") + "'";
+    });
 
-    /* SQL IN clause */
-    if (fmt === 'in') {
-        result = values.length
-            ? `IN (${formatted.join(sep)})`
-            : '';
+    let result = formatted.join(separator);
+
+    if (format === 'in') {
+        result = values.length ? `IN (${formatted.join(separator)})` : '';
     }
 
-    /* Display output */
-    const out = $('output');
+    formattedResult = result;
 
-    out.textContent = result || 'Your formatted result will appear here.';
-    out.classList.toggle('empty', !result);
+    const output = $('output');
+    output.textContent = result || 'Your formatted result will appear here.';
+    output.classList.toggle('empty', !result);
 
-    /* Update statistics */
-    $('count').textContent = values.length;
-    $('duplicates').textContent = originalCount - uniqueCount;
+    $('count').textContent = originalValues.length.toLocaleString();
+    $('uniqueCount').textContent = uniqueCount.toLocaleString();
+    $('duplicates').textContent = duplicateCount.toLocaleString();
+    $('invalid').textContent = analysis.invalidCount.toLocaleString();
+    $('characters').textContent = analysis.characters.toLocaleString();
 
     return result;
 }
 
-/* Notifications */
-function toast(msg) {
-    const t = $('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+function toast(message) {
+    const element = $('toast');
+    element.textContent = message;
+    element.classList.add('show');
 
-    setTimeout(() => {
-        t.classList.remove('show');
-    }, 1900);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+        element.classList.remove('show');
+    }, 2200);
 }
 
-/* Automatic updates */
-['input', 'format', 'separator', 'dedupe', 'sort'].forEach(id => {
-    $(id).addEventListener(
-        id === 'input' ? 'input' : 'change',
-        update
+/* Update output and summary immediately as the user works. */
+['input', 'format', 'separator', 'dedupe', 'sort', 'sortDesc'].forEach(id => {
+    $(id).addEventListener(id === 'input' ? 'input' : 'change', () => {
+        if (id === 'sort' && $('sort').checked) $('sortDesc').checked = false;
+        if (id === 'sortDesc' && $('sortDesc').checked) $('sort').checked = false;
+        update();
+    });
+});
+
+/* Load optional sample data; the page itself starts empty. */
+$('sample').addEventListener('click', () => {
+    input.value = '0001\n0004\n0009\n0050\n0056';
+    update();
+});
+
+/* Remove invalid records and duplicate values from the actual input. */
+$('cleanInput').addEventListener('click', () => {
+    const analysis = analyzeInput(input.value);
+    const uniqueValues = [...new Set(analysis.values)];
+
+    input.value = uniqueValues.join('\n');
+    update();
+
+    if (analysis.values.length === 0) {
+        toast('No numbers found to clean');
+        return;
+    }
+
+    const removedDuplicates = analysis.values.length - uniqueValues.length;
+    const removedInvalid = analysis.invalidCount;
+
+    toast(
+        `Cleaned: ${uniqueValues.length.toLocaleString()} unique numbers retained; ` +
+        `${removedDuplicates.toLocaleString()} duplicates and ` +
+        `${removedInvalid.toLocaleString()} invalid entries removed.`
     );
 });
 
-/* Load sample numbers only when requested */
-$('sample').onclick = () => {
-    input.value = '0001\n0004\n0009\n0050\n0056';
-    update();
-};
-
-/* Clear input */
-$('clear').onclick = () => {
+/* Clear input and reset the live result. */
+$('clear').addEventListener('click', () => {
     input.value = '';
     update();
     input.focus();
-};
+});
 
-/* Import text file */
-$('file').onchange = async e => {
-    const f = e.target.files[0];
+/* Import TXT or CSV files. */
+$('file').addEventListener('change', async event => {
+    const file = event.target.files[0];
+    if (!file) return;
 
-    if (f) {
-        try {
-            input.value = await f.text();
-            update();
-            toast('Text file loaded');
-        } catch (error) {
-            toast('Unable to read text file');
-        }
+    try {
+        input.value = await file.text();
+        update();
+        toast(`${file.name} imported successfully`);
+    } catch (error) {
+        toast('Unable to read this file');
     }
 
-    e.target.value = '';
-};
+    event.target.value = '';
+});
 
-/* Copy output */
-$('copy').onclick = async () => {
+/* Copy output. Clipboard API requires HTTPS or localhost in most browsers. */
+$('copy').addEventListener('click', async () => {
+    const result = update();
 
-    const v = update();
-
-    if (!v) {
+    if (!result) {
         toast('Nothing to copy');
         return;
     }
 
     try {
-        await navigator.clipboard.writeText(v);
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+            throw new Error('Clipboard API unavailable');
+        }
+
+        await navigator.clipboard.writeText(result);
         toast('Copied to clipboard');
-    } catch (e) {
+    } catch (error) {
+        const temporary = document.createElement('textarea');
+        temporary.value = result;
+        temporary.setAttribute('readonly', '');
+        temporary.style.position = 'fixed';
+        temporary.style.opacity = '0';
+        document.body.appendChild(temporary);
+        temporary.select();
 
-        /* Fallback for browsers without clipboard access */
-        const range = document.createRange();
-        range.selectNodeContents($('output'));
+        const copied = document.execCommand('copy');
+        temporary.remove();
 
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-
-        toast('Select and copy the highlighted output');
+        toast(copied ? 'Copied to clipboard' : 'Copy unavailable; select the output manually');
     }
-};
+});
 
-/* Download SQL file */
-$('download').onclick = () => {
-
-    const v = update();
-
-    if (!v) {
-        toast('Nothing to download');
-        return;
+/* Common file download helper. */
+function downloadFile(content, filename, mimeType) {
+    if (!content) {
+        toast('Nothing to export');
+        return false;
     }
 
-    const blob = new Blob(
-        [v + '\n'],
-        { type: 'text/plain;charset=utf-8' }
-    );
-
+    const blob = new Blob([content], { type: `${mimeType};charset=utf-8` });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const link = document.createElement('a');
 
-    a.href = url;
-    a.download = 'formatted_numbers.sql';
-
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 
     setTimeout(() => URL.revokeObjectURL(url), 1000);
+    return true;
+}
 
-    toast('SQL file downloaded');
-};
+/* Export cleaned/processed values as plain text, one per line. */
+$('downloadTXT').addEventListener('click', () => {
+    update();
+    if (downloadFile(processedValues.join('\n'), 'store_numbers.txt', 'text/plain')) {
+        toast('TXT file exported');
+    }
+});
 
-/* Initialise with empty input */
+/* Export values as a one-column CSV. */
+$('downloadCSV').addEventListener('click', () => {
+    update();
+
+    const csv = processedValues
+        .map(value => `"${value.replace(/"/g, '""')}"`)
+        .join('\r\n');
+
+    if (downloadFile(csv, 'store_numbers.csv', 'text/csv')) {
+        toast('CSV file exported');
+    }
+});
+
+/* Export the currently selected output format as SQL/text. */
+$('downloadSQL').addEventListener('click', () => {
+    const result = update();
+
+    if (downloadFile(result ? result + '\n' : '', 'formatted_numbers.sql', 'text/plain')) {
+        toast('SQL file exported');
+    }
+});
+
+/* Initialise with an empty input. */
 update();
-
 </script>
-
 </body>
 </html>
+'''
+
+path = Path("/mnt/data/sql-number-toolkit-updated.html")
+path.write_text(html, encoding="utf-8")
+print(f"Created {path.name} ({path.stat().st_size:,} bytes)")

@@ -1,6 +1,5 @@
-from pathlib import Path
 
-html = r'''<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -420,8 +419,3 @@ update();
 </script>
 </body>
 </html>
-'''
-
-path = Path("/mnt/data/sql-number-toolkit-updated.html")
-path.write_text(html, encoding="utf-8")
-print(f"Created {path.name} ({path.stat().st_size:,} bytes)")
